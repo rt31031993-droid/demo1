@@ -8,7 +8,7 @@ pipeline {
     }
 
     triggers {
-        cron('15 08 * * *') // backup daily at 08:15AM
+        cron('20 08 * * *') // backup daily at 08:20AM UTC
     }
 
     stages {
@@ -36,7 +36,7 @@ pipeline {
                   BACKUP_FILE=/tmp/jenkins-backup-$TIMESTAMP.tar.gz
 
                   echo "Creating backup of Jenkins..."
-                  sudo tar -czf $BACKUP_FILE -C $JENKINS_HOME_DIR .
+                  tar -czf $BACKUP_FILE -C $JENKINS_HOME_DIR .
 
                   echo "Uploading to S3..."
                   aws s3 cp $BACKUP_FILE s3://$S3_BUCKET/
