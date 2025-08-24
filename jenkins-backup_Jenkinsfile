@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        S3_BUCKET = 'technova-jenkins-backups'
+        S3_BUCKET = 'technova-jenkins-backups-demo'
         JENKINS_HOME_DIR = '/var/lib/jenkins'
     }
 
