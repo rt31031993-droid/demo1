@@ -8,7 +8,7 @@ pipeline {
     }
 
     triggers {
-        cron('H 2 * * *') // backup daily at 2AM
+        cron('15 08 * * *') // backup daily at 08:15AM
     }
 
     stages {
