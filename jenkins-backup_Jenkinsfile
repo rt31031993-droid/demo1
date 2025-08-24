@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        S3_BUCKET = 'technova-jenkins-backups'
+        JENKINS_HOME_DIR = '/var/lib/jenkins'
+    }
+
+    triggers {
+        cron('H 2 * * *') // backup daily at 2AM
+    }
+
+    stages {
+
+        stage('Create S3 Bucket') {
+            steps {
+                sh '''
+                  if aws s3api head-bucket --bucket $S3_BUCKET 2>/dev/null; then
+                    echo "Bucket $S3_BUCKET already exists"
+                  else
+                    echo "Creating bucket $S3_BUCKET"
+                    aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_REGION
+                    aws s3api put-bucket-encryption \
+                      --bucket $S3_BUCKET \
+                      --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+                  fi
+                '''
+            }
+        }
+
+        stage('Backup Jenkins') {
+            steps {
+                sh '''
+                  TIMESTAMP=$(date +%Y%m%d%H%M%S)
+                  BACKUP_FILE=/tmp/jenkins-backup-$TIMESTAMP.tar.gz
+
+                  echo "Creating backup of Jenkins..."
+                  sudo tar -czf $BACKUP_FILE -C $JENKINS_HOME_DIR .
+
+                  echo "Uploading to S3..."
+                  aws s3 cp $BACKUP_FILE s3://$S3_BUCKET/
+
+                  rm -f $BACKUP_FILE
+                  echo "Backup completed successfully."
+                '''
+            }
+        }
+    }
+}
