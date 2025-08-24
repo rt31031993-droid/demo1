@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Creating S3 bucket: $S3_BUCKET in region: $AWS_DEFAULT_REGION"
-                    aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_DEFAULT_REGION --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION || echo "Bucket may already exist"
+                    aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_DEFAULT_REGION|| echo "Bucket may already exist"
                     
                     echo "Verifying bucket..."
                     aws s3 ls | grep $S3_BUCKET || echo "Bucket not found"
